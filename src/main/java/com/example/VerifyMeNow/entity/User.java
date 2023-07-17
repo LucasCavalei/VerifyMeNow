@@ -1,4 +1,4 @@
-package com.example.VerifyMeNow.entities;
+package com.example.VerifyMeNow.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
