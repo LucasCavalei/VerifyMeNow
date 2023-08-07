@@ -17,7 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 
 public class WebSecurityConfiguration {
-
+// talvez peça authetication povider com userDetails serve and passwordEncorder
+    // este é moderno e pede -> https://www.youtube.com/watch?v=NIv9TFTSIlg
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.
