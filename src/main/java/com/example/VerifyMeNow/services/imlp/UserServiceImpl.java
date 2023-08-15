@@ -2,9 +2,14 @@ package com.example.VerifyMeNow.services.imlp;
 import com.example.VerifyMeNow.entity.User;
 import com.example.VerifyMeNow.repository.UserRepository;
 import com.example.VerifyMeNow.services.UserService;
+import jakarta.persistence.Id;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +18,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired private AuthenticationManager authenticationManager;
 
 
     @Override
@@ -32,6 +38,19 @@ public class UserServiceImpl implements UserService {
         //}
         return userRepository.save(user);
     }
+    @Override
+    public User authenticate(User user){
+        final Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        user.getPassword()));
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+
+        //return user by now
+        return user;
+
+    }
+
     @Override
     public List<User> findAll(){
        return userRepository.findAll();

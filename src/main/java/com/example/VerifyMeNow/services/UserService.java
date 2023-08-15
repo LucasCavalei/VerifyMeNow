@@ -9,6 +9,8 @@ public interface UserService {
     User saveUser(User user);
     Optional<User> getUser(Long id);
     List<User> findAll();
+    User authenticate(User user);
+
 
 
 }
