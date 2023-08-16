@@ -1,6 +1,7 @@
 package com.example.VerifyMeNow.services.imlp;
 import com.example.VerifyMeNow.entity.User;
 import com.example.VerifyMeNow.repository.UserRepository;
+import com.example.VerifyMeNow.security.TokenProvider;
 import com.example.VerifyMeNow.services.UserService;
 import jakarta.persistence.Id;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TokenProvider tokenProvider;
     @Autowired private AuthenticationManager authenticationManager;
 
 
@@ -44,7 +47,7 @@ public class UserServiceImpl implements UserService {
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
                         user.getPassword()));
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+String token = tokenProvider.createToken(authentication);
 
         //return user by now
         return user;
