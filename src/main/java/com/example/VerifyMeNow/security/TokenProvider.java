@@ -1,10 +1,13 @@
 package com.example.VerifyMeNow.security;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import java.util.Date;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.file.attribute.UserPrincipal;
+
 
 public class TokenProvider {
     private static final String JWT_SECRET_KEY = "TExBVkVfTVVZX1NFQ1JFVEE=";
@@ -21,6 +24,14 @@ public class TokenProvider {
                 .compact();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey( JWT_SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 

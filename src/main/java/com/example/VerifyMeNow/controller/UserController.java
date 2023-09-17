@@ -14,7 +14,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping("/signup")
     public User saveUser(@RequestBody User user){
     //adicionar se user exist
