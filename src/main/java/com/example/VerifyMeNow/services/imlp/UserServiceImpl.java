@@ -5,6 +5,7 @@ import com.example.VerifyMeNow.exception.UserRegistrationException;
 import com.example.VerifyMeNow.repository.UserRepository;
 import com.example.VerifyMeNow.security.TokenProvider;
 import com.example.VerifyMeNow.services.UserService;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,13 +36,14 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public User saveUser(User user){
-        //User user = findByUsername(user.getUsername());
-        //if user{
-          //  return "Usuario ja existe";
-        //}
-        // Check if the username or email is already taken
+        if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
+            throw new UserRegistrationException("Username, email, and password cannot be empty");
+        }
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new UserRegistrationException("Username is already taken");
+        }
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new UserRegistrationException("Email is already registered");
         }
         return userRepository.save(user);
     }
