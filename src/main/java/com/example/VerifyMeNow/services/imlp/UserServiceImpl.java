@@ -1,10 +1,12 @@
 package com.example.VerifyMeNow.services.imlp;
+
 import com.example.VerifyMeNow.entity.User;
+import com.example.VerifyMeNow.exception.UserRegistrationException;
 import com.example.VerifyMeNow.repository.UserRepository;
 import com.example.VerifyMeNow.security.TokenProvider;
 import com.example.VerifyMeNow.services.UserService;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,10 @@ public class UserServiceImpl implements UserService {
         //if user{
           //  return "Usuario ja existe";
         //}
+        // Check if the username or email is already taken
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            throw new UserRegistrationException("Username is already taken");
+        }
         return userRepository.save(user);
     }
     @Override
