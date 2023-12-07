@@ -8,8 +8,8 @@ public class StandardError implements Serializable{
     private Date timestamp;
     private String message;
 
-    public StandardError(HttpStatus httpStatus, Date timestamp, String message) {
-        this.httpStatus = httpStatus;
+    public StandardError(int httpStatus, Date timestamp, String message) {
+        this.httpStatus = HttpStatus.valueOf(httpStatus);
         this.timestamp = timestamp;
         this.message = message;
     }

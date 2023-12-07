@@ -14,14 +14,19 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/signup")
+    @PostMapping("/signup")
+
     public User saveUser(@RequestBody User user){
-    //adicionar se user exist
-        return userService.saveUser(user);
+ return userService.saveUser(user);
+
+    }
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello, Spring Boot!";
     }
 
     @PostMapping
-    public User LoginUser(@RequestBody User user){
+    public String LoginUser(@RequestBody User user){
         return userService.authenticate(user);
     }
     @GetMapping("{id}")
