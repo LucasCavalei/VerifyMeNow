@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface UserService {
     User findByUsername(String username);
     User saveUser(User user);
-    Optional<User> getUser(Long id);
+    Optional<User> getUserById(Long id);
     List<User> findAll();
     String authenticate(User user);
 
