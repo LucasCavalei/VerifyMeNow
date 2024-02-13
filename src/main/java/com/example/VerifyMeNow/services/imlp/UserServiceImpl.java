@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user){
 
         if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
-            throw new UserRegistrationException("Username, email, and password cannot be empty");
+            throw new UserRegistrationException("Usernameas, email, and password cannot be empty");
         }
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new UserRegistrationException("Username is already taken");
@@ -54,16 +56,21 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public String authenticate(User user){
+        log.info("2222Received user in authenticate: {}", user);
+        try {
+
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
                         user.getPassword()));
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        log.info("3333 after authentication  in authenticate: {}", userDetails);
+
         System.out.println("User " + userDetails.getUsername() + " has successfully logged in.");
         //FALTA
 //	// Inject into security context
-//		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
         String username = userDetails.getUsername();
 
         //User user = (User) authentication.getPrincipal();
@@ -71,6 +78,11 @@ public class UserServiceImpl implements UserService {
 String token = tokenProvider.createToken(username);
 
 return token;
+        } catch (UsernameNotFoundException e) {
+            // Handle username not found exception
+            log.error("Username not found: {}", user.getUsername(), e);
+            throw new UsernameNotFoundException("Username not found", e);
+        }
 
     }
 

@@ -28,8 +28,7 @@ public class UserController {
     @PostMapping("/login")
     public String LoginUser(@RequestBody User user){
 
-        log.info("Received login request with user data: {}", user);
-        return userService.authenticate(user);
+            return userService.authenticate(user);
     }
     @GetMapping("{id}")
     public Optional<User> getUserById(@PathVariable("id") Long id){

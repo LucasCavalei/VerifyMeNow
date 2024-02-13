@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -16,6 +18,7 @@ public class TokenProvider {
     private static final String JWT_SECRET_KEY = "TExBVkVfTVVZX1NFQ1JFVEE=";
     public static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * (long) 8; // 8 Horas
     private static final String JWT_PREFIX = "Bearer";
+    private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
 
     public String createToken(String username) {
@@ -31,6 +34,8 @@ public class TokenProvider {
     }
 
     public String getJwtFromRequest(HttpServletRequest request) {
+        logger.info("Received request in getJWTfromRequest in tokenProvider {}", request);
+
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
