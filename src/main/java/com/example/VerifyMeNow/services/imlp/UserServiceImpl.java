@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private TokenProvider tokenProvider;
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @Autowired private AuthenticationManager authenticationManager;
 
 
@@ -42,6 +45,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(User user){
 
+
         if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
             throw new UserRegistrationException("Usernameas, email, and password cannot be empty");
         }
@@ -51,6 +55,8 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new UserRegistrationException("Email is already registered");
         }
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         return userRepository.save(user);
         //return tokenProvider.createToken(savedUser);
     }

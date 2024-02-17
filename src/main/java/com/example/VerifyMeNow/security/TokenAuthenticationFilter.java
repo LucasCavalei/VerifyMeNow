@@ -43,7 +43,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter{
        try {
            logger.info("Received request for username in Authenticationfilter {}", request);
 
-       //função logo abaixo
        String jwt = tokenProvider.getJwtFromRequest(request);
            logger.info("jwt from request for username in Authenticationfilter {}", jwt);
 

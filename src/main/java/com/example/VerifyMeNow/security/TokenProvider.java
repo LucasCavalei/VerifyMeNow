@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,19 +16,27 @@ import java.util.Date;
 
 @Component
 public class TokenProvider {
-    private static final String JWT_SECRET_KEY = "TExBVkVfTVVZX1NFQ1JFVEE=";
-    public static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * (long) 8; // 8 Horas
+    //INSPIRADO POR PROJETO SECURE-USER-PLATFORM-VUE
+
+    //public static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * (long) 8; // 8 Horas
+
+    @Value("${app.jwtSecret}")
+    private String secret;
+    @Value("${app.jwtExpirationInMs}")
+    private int jwtExpirationInMs;
     private static final String JWT_PREFIX = "Bearer";
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
 
     public String createToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         String JWT = Jwts.builder()
                 .setSubject(String.valueOf(username))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-                .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS256,secret)
                 .compact();
         String token = JWT_PREFIX + " " + JWT;
         return token;
@@ -73,7 +82,7 @@ public class TokenProvider {
     private Claims getAllClaimsFromToken(String token) {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody();
+            claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         } catch (Exception e) {
             claims = null;
         }
