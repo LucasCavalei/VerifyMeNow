@@ -25,16 +25,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter{
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
 
-   //Por que este @Override
-//   Your TokenAuthenticationFilter class extends OncePerRequestFilter.
-//    The OncePerRequestFilter class is part of the Spring Security framework
-//        and provides a convenient base class for filters that should be applied only once per request.
-//    OncePerRequestFilter has a method named doFilterInternal that
-//    you can override to provide your own logic for handling requests.
-//    By adding @Override before the doFilterInternal method in your
-//        TokenAuthenticationFilter class, you are explicitly telling the compiler that you intend
-//    to provide your own implementation for this method, and it is expected to override the same method in
-//    the superclass (OncePerRequestFilter).
+
    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
       String username;

@@ -2,24 +2,49 @@ package com.example.VerifyMeNow.controller;
 
 import com.example.VerifyMeNow.entity.User;
 import com.example.VerifyMeNow.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+@Controller
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
-    @PostMapping("/signup")
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model){
+        User user = new User();
+        model.addAttribute("user", user);
+        log.info("User added to the model: {}", user);
+        return "register";
+    }
 
-    public User saveUser(@RequestBody User user){
+   /* @RequestMapping(value = {"/register"}, method = RequestMethod.GET)
+    public ModelAndView register(){
+        ModelAndView modelAndView = new ModelAndView();
+        User user = new User();
+        modelAndView.addObject("user", user);
+        modelAndView.setViewName("register"); // resources/template/register.html
+        return modelAndView;
+    } */
+   /* @PostMapping("/register/save")
+
+   // ANTES public User saveUser(@RequestBody User user){
+    public User registration(@ModelAttribute("user") User user,
+                             BindingResult result,
+                             Model model){
    return userService.saveUser(user);
 
-    }
+    }*/
     @GetMapping("/hello")
     public String hello() {
         return "Hello, Spring Boot!";

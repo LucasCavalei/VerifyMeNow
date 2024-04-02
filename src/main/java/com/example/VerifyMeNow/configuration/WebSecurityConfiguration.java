@@ -30,24 +30,23 @@ public class WebSecurityConfiguration {
     @Autowired
     CustomUserDetailsService jwtUserDetailsService;
 
-
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(jwtUserDetailsService)
-//                .passwordEncoder(passwordEncoder());
-//    }
-
-    // talvez peça authetication povider com userDetails serve and passwordEncorder
-    // este é moderno e pede -> https://www.youtube.com/watch?v=NIv9TFTSIlg
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                // .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(HttpMethod.POST,"/signup").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/login").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/hello").permitAll()
+                       // auth.requestMatchers(HttpMethod.POST,"/signup").permitAll()
+                                auth.requestMatchers(HttpMethod.POST,"/login").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/register/").permitAll()
+                                        .requestMatchers(HttpMethod.POST,"/signup").permitAll()
+                                        // errado soemnte auteticados poderiam registrat se
+                                        // .requestMatchers(HttpMethod.POST,"/register/save").authenticated()
+
+                                        .requestMatchers(HttpMethod.POST,"/register/save").permitAll()
+                                        //.requestMatchers("/api/lectures/**").authenticated();
+
+                                .requestMatchers(HttpMethod.GET,"/helloworld").permitAll()
                                 .anyRequest().authenticated()
                 );
 
@@ -57,20 +56,6 @@ public class WebSecurityConfiguration {
 
         return http.build();
 
-//        http.csrf(csrf -> csrf.disable())
-//                .authorizeHttpRequests(req ->
-//                        req.requestMatchers("/login","/signup")
-//                                .permitAll()
-//                                .anyRequest()
-//                                .authenticated()
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//
-//
-//
-//        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
     }
 
 
@@ -82,10 +67,4 @@ public class WebSecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
    }
-//    @Bean
-//    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-//        return new TokenAuthenticationFilter();
-//
-//    }
 }
-

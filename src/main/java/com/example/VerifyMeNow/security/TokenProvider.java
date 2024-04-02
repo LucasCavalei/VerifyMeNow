@@ -44,8 +44,9 @@ public class TokenProvider {
 
     public String getJwtFromRequest(HttpServletRequest request) {
         logger.info("Received request in getJWTfromRequest in tokenProvider {}", request);
-
         String bearerToken = request.getHeader("Authorization");
+        logger.info("------------000------- Received bearerToken {}", bearerToken);
+
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
         }
@@ -100,16 +101,3 @@ public class TokenProvider {
     }
 
 }
-//    public boolean validateToken(String token) {
-//        try {
-//            Jwts.parser().setSigningKey( JWT_SECRET_KEY).parseClaimsJws(token);
-//            return true;
-//        } catch (JwtException | IllegalArgumentException e) {
-//          //  throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
-//            System.out.println("por aqui a execção e ecluir o retrun false");
-//        return false;
-//        }
-//    }
-//}
-
-
