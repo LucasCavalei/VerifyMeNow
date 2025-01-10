@@ -46,13 +46,13 @@ public class UserServiceImpl implements UserService {
 
 
         if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
-            throw new UserRegistrationException("Usernameas, email, and password cannot be empty");
+            throw new UserRegistrationException("Nome, email e senha não podem estar vazios ");
         }
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new UserRegistrationException("Username is already taken");
+            throw new UserRegistrationException("Nome do usuario já existe");
         }
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new UserRegistrationException("Email is already registered");
+            throw new UserRegistrationException("Email já existe");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public String authenticate(User user){
-        log.info("2222Received user in authenticate: {}", user);
+        log.info("Usuario recebido no metotodo Authenticate antes da autenticação: {}", user);
         try {
 
         final Authentication authentication = authenticationManager.authenticate(
@@ -70,11 +70,11 @@ public class UserServiceImpl implements UserService {
                         user.getPassword()));
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        log.info("3333 after authentication  in authenticate: {}", userDetails);
+        log.info("Este é UserDetails depois da autenticação", userDetails);
 
-        System.out.println("User " + userDetails.getUsername() + " has successfully logged in.");
-        //FALTA
-//	// Inject into security context
+        System.out.println("User " + userDetails.getUsername() + " Usuario logado com sucesso.");
+                  //FALTA
+         //Inject into security context
 		SecurityContextHolder.getContext().setAuthentication(authentication);
         String username = userDetails.getUsername();
 

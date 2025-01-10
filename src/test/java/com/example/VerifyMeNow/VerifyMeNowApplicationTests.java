@@ -8,7 +8,6 @@ class VerifyMeNowApplicationTests {
 
 	@Test
 	void contextLoads() {
-
 	}
 
 }

@@ -1,5 +1,4 @@
 package com.example.VerifyMeNow.security;
-
 import com.example.VerifyMeNow.services.imlp.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,41 +16,46 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class TokenAuthenticationFilter extends OncePerRequestFilter{
+public class    TokenAuthenticationFilter extends OncePerRequestFilter{
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private TokenProvider tokenProvider;
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
-
-
    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-      String username;
+       String username;
 
-   //public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-       try {
-           logger.info("Received request for username in Authenticationfilter {}", request);
+       String path = request.getServletPath();
 
+       // Ignore rotas públicas
+       if (path.equals("/helloworld") || path.equals("/login") || path.equals("/register")) {
+           filterChain.doFilter(request, response);
+           return;
+       }
+
+
+       logger.info("Recebido o seguinte request do cliente {}", request);
        String jwt = tokenProvider.getJwtFromRequest(request);
-           logger.info("jwt from request for username in Authenticationfilter {}", jwt);
+       if (jwt != null) {
+           try {
 
-       username = tokenProvider.getUsernameFromToken(jwt);
-           logger.info("Received username in Authenticationfilter request with user data: {}", username);
+               username = tokenProvider.getUsernameFromToken(jwt);
+               logger.info("recebido o seguinte authenticationfilter request com  username: {}", username);
 
-       UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-       if (tokenProvider.validateToken(jwt, userDetails)) {
-           UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
-                   userDetails.getPassword());
-           SecurityContextHolder.getContext().setAuthentication(authentication);
+               UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+               if (tokenProvider.validateToken(jwt, userDetails)) {
+                   UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
+                           userDetails.getPassword());
+                   SecurityContextHolder.getContext().setAuthentication(authentication);
+               }
+           } catch (Exception e) {
+               logger.error("Não pode estabelecer autenticação: {}", e);
+           }
+           filterChain.doFilter(request, response);
        }
-       } catch (Exception e) {
-           logger.error("Cannot set user authentication: {}", e);
-       }
-       filterChain.doFilter(request, response);
    }
-
 }
 
 

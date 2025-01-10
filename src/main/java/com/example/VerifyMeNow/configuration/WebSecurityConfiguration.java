@@ -20,44 +20,35 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 
 @Configuration
-@EnableWebSecurity
+ @EnableWebSecurity
 @EnableMethodSecurity
 @PropertySource(value = "classpath:application.properties")
 public class WebSecurityConfiguration {
 
-    @Autowired
-    TokenAuthenticationFilter tokenAuthenticationFilter;
+
+     @Autowired
+     TokenAuthenticationFilter tokenAuthenticationFilter;
     @Autowired
     CustomUserDetailsService jwtUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Desativa o CSRF (recomendado apenas para APIs sem sessão, como JWT)
         http.csrf(csrf -> csrf.disable())
-               // .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth ->
-                       // auth.requestMatchers(HttpMethod.POST,"/signup").permitAll()
-                                auth.requestMatchers(HttpMethod.POST,"/login").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/register/").permitAll()
-                                        .requestMatchers(HttpMethod.POST,"/signup").permitAll()
-                                        // errado soemnte auteticados poderiam registrat se
-                                        // .requestMatchers(HttpMethod.POST,"/register/save").authenticated()
-
-                                        .requestMatchers(HttpMethod.POST,"/register/save").permitAll()
-                                        //.requestMatchers("/api/lectures/**").authenticated();
-
-                                .requestMatchers(HttpMethod.GET,"/helloworld").permitAll()
-                                .anyRequest().authenticated()
+                        auth.requestMatchers(HttpMethod.POST, "/login").permitAll() // Login livre
+                                .requestMatchers(HttpMethod.GET, "/helloworld").permitAll() // Acesso à rota /helloworld
+                                .requestMatchers(HttpMethod.POST, "/register").permitAll() // Registro livre (GET)
+                                .anyRequest().authenticated() // Todas as outras rotas precisam de autenticação
                 );
-
-     //  http.authenticationProvider(authenticationProvider());
-
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

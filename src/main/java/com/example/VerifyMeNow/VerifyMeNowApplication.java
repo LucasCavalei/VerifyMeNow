@@ -1,12 +1,16 @@
+
+
 package com.example.VerifyMeNow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-@SpringBootApplication
-public class VerifyMeNowApplication {
+
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+public class 	VerifyMeNowApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VerifyMeNowApplication.class, args); 
+		SpringApplication.run(VerifyMeNowApplication.class, args);
 	}
 }

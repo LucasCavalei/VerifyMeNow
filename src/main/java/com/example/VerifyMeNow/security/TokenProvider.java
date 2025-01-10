@@ -1,5 +1,4 @@
 package com.example.VerifyMeNow.security;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,15 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import java.util.Date;
-
 
 @Component
 public class TokenProvider {
-    //INSPIRADO POR PROJETO SECURE-USER-PLATFORM-VUE
-
-    //public static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * (long) 8; // 8 Horas
+    //Classe TokenPorvider inspirada por projeto  SECURE-USER-PLATFORM-VUE
 
     @Value("${app.jwtSecret}")
     private String secret;
@@ -43,9 +38,9 @@ public class TokenProvider {
     }
 
     public String getJwtFromRequest(HttpServletRequest request) {
-        logger.info("Received request in getJWTfromRequest in tokenProvider {}", request);
+        //logger.info("Received request in getJWTfromRequest in tokenProvider {}", request);
         String bearerToken = request.getHeader("Authorization");
-        logger.info("------------000------- Received bearerToken {}", bearerToken);
+        logger.info(" O bearerToken é  {}", bearerToken);
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
@@ -63,8 +58,9 @@ public class TokenProvider {
             username = null;
         }
         return username;
-        // In this example, claims.getSubject() retrieves the value of the sub claim from the JWT payload,
-        // which typically represents the username or user identifier
+
+        //Neste exemplo, claims.getSubject() recupera o valor da declaração sub do payload do JWT,
+        // que normalmente representa o nome de usuário ou o identificador do usuário.
     }
     public boolean validateToken(String token, UserDetails userDetails) {
        // User user = (User) userDetails;
@@ -88,16 +84,13 @@ public class TokenProvider {
             claims = null;
         }
         return claims;
-//        In the context of JWT (JSON Web Tokens)
-//        a Claims object represents the payload of the token. The payload contains claims,
-//                -sub (Subject): Identifies the subject of the JWT. It typically contains the user ID or a unique identifier for the entity (user).
-//                -iss (Issuer): Identifies the issuer of the JWT. It indicates who issued the token.
-//                - iat (Issued At): Indicates the timestamp when the JWT was issued.
-//                -aud (Audience): Identifies the audience for which the JWT is intended. It specifies who or what the intended audience is.
-//                -exp (Expiration Time): Indicates the expiration time of the JWT. After this time, the token should not be accepted.
-//        Claims interface provides a method called getExpiration() that corresponds to the exp claim
-//        The value of the exp claim is typically a NumericDate,
-//        representing the expiration time as the number of seconds since 1970-01-01 00:00:00 UTC.
-    }
+        //     sub (Subject): Identifica o assunto do JWT. Geralmente contém o ID do usuário ou um identificador único para a entidade (usuário).
+        //iss (Issuer): Identifica o emissor do JWT. Indica quem emitiu o token.
+        //iat (Issued At): Indica o timestamp (data e hora) em que o JWT foi emitido.
+        //aud (Audience): Identifica a audiência para a qual o JWT é destinado. Especifica quem ou o que é o público-alvo do token.
+        //exp (Expiration Time): Indica o tempo de expiração do JWT. Após esse horário, o token não deve ser aceito.
+        //A interface Claims fornece um método chamado getExpiration() que corresponde à declaração exp.
+        //O valor da declaração exp geralmente é um NumericDate, que representa o horário de expiração como o número de segundos desde 01-01-1970 00:00:00 UTC.
+            }
 
 }
