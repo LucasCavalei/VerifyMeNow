@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +20,9 @@ import com.example.backend.repository.UserRepository;
 import com.example.backend.security.TokenProvider;
 import com.example.backend.services.UserService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -44,7 +47,7 @@ public class UserServiceImpl implements UserService {
         return userFound;
     }
     @Override
-    public User saveUser(User user){
+    public ResponseEntity<?> saveUser(User user){
 
 
         if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
@@ -58,11 +61,14 @@ public class UserServiceImpl implements UserService {
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        return userRepository.save(user);
-        //return tokenProvider.createToken(savedUser);
+
+
+
+        userRepository.save(user);
+       return ResponseEntity.ok("User registered successfully!");
     }
     @Override
-    public String authenticate(User user){
+    public ResponseEntity<?> authenticate(User user){
         log.info("Usuario recebido no metotodo Authenticate antes da autenticação: {}", user);
         try {
 
@@ -80,11 +86,12 @@ public class UserServiceImpl implements UserService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
         String username = userDetails.getUsername();
 
-        //User user = (User) authentication.getPrincipal();
-        //log.info("userTemporaryname Received login request with user data: {}",userDetails);
 String token = tokenProvider.createToken(username);
 
-return token;
+            Map<String, String> resposta = new HashMap<>();
+            resposta.put("token", token);
+            return ResponseEntity.ok(resposta);
+
         } catch (UsernameNotFoundException e) {
             // Handle username not found exception
             log.error("Username not found: {}", user.getUsername(), e);

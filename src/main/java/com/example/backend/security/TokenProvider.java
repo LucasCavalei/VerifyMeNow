@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -63,7 +64,9 @@ public class TokenProvider {
         // que normalmente representa o nome de usuário ou o identificador do usuário.
     }
     public boolean validateToken(String token, UserDetails userDetails) {
-       // User user = (User) userDetails;
+      // User user = (User) userDetails;
+        logger.info(" userDeails em validate token  {}",userDetails.getUsername());
+
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
@@ -78,11 +81,13 @@ public class TokenProvider {
 
     private Claims getAllClaimsFromToken(String token) {
         Claims claims;
+        logger.info(" getAllClaimsFromToken aqui,  {}", token);
         try {
             claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         } catch (Exception e) {
             claims = null;
         }
+        logger.info(" O claims {}", claims);
         return claims;
         //     sub (Subject): Identifica o assunto do JWT. Geralmente contém o ID do usuário ou um identificador único para a entidade (usuário).
         //iss (Issuer): Identifica o emissor do JWT. Indica quem emitiu o token.

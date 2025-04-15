@@ -1,17 +1,15 @@
 package com.example.backend.services;
+
+import com.example.backend.entity.User;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 import java.util.Optional;
 
-import com.example.backend.entity.User;
-
 public interface UserService {
     User findByUsername(String username);
-    User saveUser(User user);
+    ResponseEntity<?> saveUser(User user);      // antes: User saveUser
     Optional<User> getUserById(Long id);
     List<User> findAll();
-    String authenticate(User user);
-
-
-
+    ResponseEntity<?> authenticate(User user);  // antes: String authenticate
 }
-

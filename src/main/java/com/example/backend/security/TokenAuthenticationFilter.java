@@ -24,32 +24,37 @@ public class    TokenAuthenticationFilter extends OncePerRequestFilter{
     private TokenProvider tokenProvider;
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
-   @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-       String username;
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String path = request.getServletPath();
 
-       String path = request.getServletPath();
+        if (path.startsWith("/auth/register") || path.startsWith("/auth/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-       logger.info("Recebido o seguinte request do cliente {}", request);
-       String jwt = tokenProvider.getJwtFromRequest(request);
-       if (jwt != null) {
-           try {
+        String jwt = tokenProvider.getJwtFromRequest(request);
 
-               username = tokenProvider.getUsernameFromToken(jwt);
-               logger.info("1- recebido o seguinte authenticationfilter request com  username: {}", username);
+        if (jwt != null) {
+            try {
+                String username = tokenProvider.getUsernameFromToken(jwt);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-               UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-               if (tokenProvider.validateToken(jwt, userDetails)) {
-                   UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
-                           userDetails.getPassword());
-                   SecurityContextHolder.getContext().setAuthentication(authentication);
-               }
-           } catch (Exception e) {
-               logger.error("Não pode estabelecer autenticação: {}", e);
-           }
-           filterChain.doFilter(request, response);
-       }
-   }
+                if (tokenProvider.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (Exception e) {
+                logger.error("Não pode estabelecer autenticação: {}", e);
+            }
+        }
+
+        // Isso garante que a requisição continue fluindo, autenticada ou não
+        filterChain.doFilter(request, response);
+    }
 }
 
 
