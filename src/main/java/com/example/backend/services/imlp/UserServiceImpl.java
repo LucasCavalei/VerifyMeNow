@@ -1,6 +1,10 @@
 package com.example.backend.services.imlp;
-
-import io.micrometer.common.util.StringUtils;
+import com.example.backend.entity.ERole;
+import com.example.backend.entity.Role;
+import com.example.backend.repository.RoleRepository;
+import com.example.backend.request.LoginRequest;
+import com.example.backend.request.SignupRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +17,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.example.backend.entity.User;
 import com.example.backend.exception.UserRegistrationException;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.security.TokenProvider;
 import com.example.backend.services.UserService;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,9 +30,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    RoleRepository roleRepository;
+    @Autowired
     private TokenProvider tokenProvider;
     @Autowired
-    PasswordEncoder passwordEncoder;
+    PasswordEncoder encoder;
     @Autowired private AuthenticationManager authenticationManager;
 
 
@@ -46,36 +47,57 @@ public class UserServiceImpl implements UserService {
         User userFound = userRepository.findByUsername(username);
         return userFound;
     }
+
+
+
     @Override
-    public ResponseEntity<?> saveUser(User user){
+    public ResponseEntity<?> saveUser(@Valid SignupRequest signupRequest){
 
-
-        if (StringUtils.isBlank(user.getUsername()) || StringUtils.isBlank(user.getEmail()) || StringUtils.isBlank(user.getPassword())) {
-            throw new UserRegistrationException("Nome, email e senha não podem estar vazios ");
-        }
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (userRepository.findByUsername(signupRequest.getUsername()) != null) {
             throw new UserRegistrationException("Nome do usuario já existe");
         }
-        if (userRepository.findByEmail(user.getEmail()) != null) {
+        if (userRepository.findByEmail(signupRequest.getEmail()) != null) {
             throw new UserRegistrationException("Email já existe");
         }
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        User user = new User(signupRequest.getUsername(),
+                signupRequest.getEmail(),
+                encoder.encode(signupRequest.getPassword()));
 
+        Set<String> strRoles = signupRequest.getRole();
+        Set<Role> roles = new HashSet<>();
 
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                if (role.equals("admin")) {
+                    Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    roles.add(adminRole);
+                } else {
+                    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    roles.add(userRole);
+                }
+            });
+        }
+
+        user.setRoles(roles);
 
         userRepository.save(user);
        return ResponseEntity.ok("User registered successfully!");
     }
     @Override
-    public ResponseEntity<?> authenticate(User user){
-        log.info("Usuario recebido no metotodo Authenticate antes da autenticação: {}", user);
+    public ResponseEntity<?> authenticate(@Valid LoginRequest loginRequest){
+        log.info("Usuario recebido no metotodo Authenticate antes da autenticação: {}", loginRequest);
         try {
 
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
-                        user.getPassword()));
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()));
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         log.info("Este é UserDetails depois da autenticação", userDetails);
@@ -94,10 +116,9 @@ String token = tokenProvider.createToken(username);
 
         } catch (UsernameNotFoundException e) {
             // Handle username not found exception
-            log.error("Username not found: {}", user.getUsername(), e);
+            log.error("Username not found: {}", loginRequest.getUsername(), e);
             throw new UsernameNotFoundException("Username not found", e);
         }
-
     }
 
     @Override

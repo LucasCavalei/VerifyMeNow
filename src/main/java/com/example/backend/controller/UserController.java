@@ -1,5 +1,8 @@
 package com.example.backend.controller;
 
+import com.example.backend.request.LoginRequest;
+import com.example.backend.request.SignupRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +26,13 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> saveUser(@RequestBody User user) {
-        return userService.saveUser(user);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+        return userService.saveUser(signupRequest);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
-        return userService.authenticate(user);
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+        return userService.authenticate(loginRequest);
     }
 
     @GetMapping("/{id}")
