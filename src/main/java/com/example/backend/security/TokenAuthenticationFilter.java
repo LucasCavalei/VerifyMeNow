@@ -4,9 +4,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.backend.services.imlp.CustomUserDetailsService;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class    TokenAuthenticationFilter extends OncePerRequestFilter{
@@ -42,8 +45,16 @@ public class    TokenAuthenticationFilter extends OncePerRequestFilter{
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
                 if (tokenProvider.validateToken(jwt, userDetails)) {
+
+
+                    List<String> roles = tokenProvider.getRolesFromToken(jwt);
+
+                    // Converte as roles em GrantedAuthority
+                    List<SimpleGrantedAuthority> authorities = roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .toList();
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            userDetails, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
@@ -51,8 +62,6 @@ public class    TokenAuthenticationFilter extends OncePerRequestFilter{
                 logger.error("Não pode estabelecer autenticação: {}", e);
             }
         }
-
-        // Isso garante que a requisição continue fluindo, autenticada ou não
         filterChain.doFilter(request, response);
     }
 }

@@ -68,30 +68,29 @@ public class UserServiceImpl implements UserService {
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                    .orElseThrow(() -> new RuntimeException("Error: Role não encontrado."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 if (role.equals("admin")) {
                     Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            .orElseThrow(() -> new RuntimeException("Error: Role não encontrado."));
                     roles.add(adminRole);
                 } else {
                     Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            .orElseThrow(() -> new RuntimeException("Error: Role não encontrado."));
                     roles.add(userRole);
                 }
             });
         }
-
         user.setRoles(roles);
-
         userRepository.save(user);
-       return ResponseEntity.ok("User registered successfully!");
+       return ResponseEntity.ok("Usuario criado com sucesso!");
     }
+
+
     @Override
     public ResponseEntity<?> authenticate(@Valid LoginRequest loginRequest){
-        log.info("Usuario recebido no metotodo Authenticate antes da autenticação: {}", loginRequest);
         try {
 
         final Authentication authentication = authenticationManager.authenticate(
@@ -106,9 +105,7 @@ public class UserServiceImpl implements UserService {
                   //FALTA
          //Inject into security context
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-        String username = userDetails.getUsername();
-
-String token = tokenProvider.createToken(username);
+        String token = tokenProvider.createToken(userDetails);
 
             Map<String, String> resposta = new HashMap<>();
             resposta.put("token", token);

@@ -42,7 +42,6 @@ public class WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(@org.jetbrains.annotations.NotNull HttpSecurity http) throws Exception {
         http
-                // Habilitar CORS usando a configuração definida no bean corsConfigurationSource()
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
 
@@ -51,8 +50,8 @@ public class WebSecurityConfiguration {
                 )
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/auth/login").permitAll()
-                                // Acesso à rota /helloworld
                                 .requestMatchers("/auth/register").permitAll()
+                                .requestMatchers("/helloworld").permitAll() //
                                 .anyRequest().authenticated() // Todas as outras rotas precisam de autenticação
                 );
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

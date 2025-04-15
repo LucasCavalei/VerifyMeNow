@@ -10,7 +10,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class TokenProvider {
@@ -24,12 +27,15 @@ public class TokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
 
-    public String createToken(String username) {
+    public String createToken(UserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         String JWT = Jwts.builder()
-                .setSubject(String.valueOf(username))
+                .setSubject(userDetails.getUsername())
+                .claim("roles", userDetails.getAuthorities().stream()
+                        .map(role -> role.getAuthority()) // Ex: ROLE_ADMIN, ROLE_USER
+                        .toList())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS256,secret)
@@ -49,7 +55,6 @@ public class TokenProvider {
         return null;
 
     }
-
     public String getUsernameFromToken(String token) {
         String username;
         try {
@@ -59,17 +64,26 @@ public class TokenProvider {
             username = null;
         }
         return username;
-
         //Neste exemplo, claims.getSubject() recupera o valor da declaração sub do payload do JWT,
         // que normalmente representa o nome de usuário ou o identificador do usuário.
     }
+
+
     public boolean validateToken(String token, UserDetails userDetails) {
-      // User user = (User) userDetails;
         logger.info(" userDeails em validate token  {}",userDetails.getUsername());
 
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        if (claims == null) return new ArrayList<>();
+        return claims.get("roles", List.class);
+    }
+
+
     private boolean isTokenExpired(String token) {
         final Date expirationDate = getExpirationDateFromToken(token);
         return expirationDate.before(new Date());
