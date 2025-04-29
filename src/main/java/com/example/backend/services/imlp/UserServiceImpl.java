@@ -91,6 +91,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> authenticate(@Valid LoginRequest loginRequest){
+        log.info("chegou em authenticate", loginRequest.getUsername());
+
         try {
 
         final Authentication authentication = authenticationManager.authenticate(

@@ -52,6 +52,8 @@ public class WebSecurityConfiguration {
                         auth.requestMatchers("/auth/login").permitAll()
                                 .requestMatchers("/auth/register").permitAll()
                                 .requestMatchers("/helloworld").permitAll() //
+                                .requestMatchers("/api/home-data").authenticated()
+                                .requestMatchers("/api/professor/dashboard-data").authenticated()
                                 .anyRequest().authenticated() // Todas as outras rotas precisam de autenticação
                 );
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -59,30 +61,16 @@ public class WebSecurityConfiguration {
         return http.build();
 
         }
-    // --- Bean de Configuração CORS ---
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permite requisições de qualquer origem.
-        // ATENÇÃO: Para produção, é ALTAMENTE recomendado restringir a origens específicas!
         // Ex: configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://seudominiofrontend.com"));
         configuration.setAllowedOriginPatterns(List.of("*")); // Use allowedOriginPatterns com "*" se precisar de allowCredentials(true)
-
-        // Permite os métodos HTTP especificados (GET, POST, PUT, DELETE, etc.)
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
-
-        // Permite todos os cabeçalhos na requisição
         configuration.setAllowedHeaders(List.of("*")); // Ou especifique cabeçalhos: Arrays.asList("Authorization", "Cache-Control", "Content-Type")
-
-        // Permite que o navegador envie credenciais (como cookies ou cabeçalhos de autenticação)
-        // Necessário se seu frontend envia tokens JWT no cabeçalho Authorization
         configuration.setAllowCredentials(true);
-
-        // Configura quais cabeçalhos podem ser expostos ao frontend (opcional, mas útil para Authorization)
-        // configuration.setExposedHeaders(Arrays.asList("Authorization"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica esta configuração a todas as rotas da sua API (/**)
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

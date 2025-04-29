@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
-public class UserController {
+public class    UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
@@ -44,16 +44,4 @@ public class UserController {
     }
 }
 
-   // @GetMapping("/")
-   // public List<User> getUsers(){
-     //   return userService.findAll();
-    //}
-
-
-   // @GetMapping("/helloworld")
-   // @ResponseBody
-   // public String sayHello() {
-
-     //   return "helloworld";
-    //}
 
